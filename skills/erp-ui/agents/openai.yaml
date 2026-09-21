@@ -1,0 +1,4 @@
+interface:
+  display_name: "ERP UI"
+  short_description: "Navigate and test Visma.net ERP screens"
+  default_prompt: "Use $erp-ui to open and inspect a local Visma.net ERP screen."

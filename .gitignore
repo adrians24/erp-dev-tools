@@ -1,0 +1,14 @@
+__pycache__/
+*.py[cod]
+.venv/
+.env
+.env.*
+!.env.example
+*.local.ps1
+*.local.json
+.playwright-cli/
+TestResults/
+artifacts/
+*.log
+*.trx
+*.xel

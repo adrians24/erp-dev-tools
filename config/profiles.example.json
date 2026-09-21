@@ -1,0 +1,28 @@
+{
+  "version": 1,
+  "profiles": {
+    "local": {
+      "erpApiBaseUrl": "http://localhost/<erp-site>/api",
+      "erpUiBaseUrl": "http://localhost/<erp-site>",
+      "erpCompany": "<local-company-name>",
+      "erpUser": "<local-user>",
+      "environmentMutexName": "<shared-environment-mutex-name>",
+      "companyId": "<local-company-id>",
+      "salesOrderServerUrl": "https://localhost:5001",
+      "sqlServer": "(local)\\<sql-instance>",
+      "database": "<local-database>"
+    },
+    "internal": {
+      "tokenUrl": "<internal-token-url>",
+      "clientId": "<internal-client-id>",
+      "tenantId": "<internal-tenant-id>",
+      "companyId": "<internal-company-id>",
+      "branchId": "<internal-branch-id-or-empty>",
+      "erpUser": "<internal-api-user>",
+      "erpCompany": "<internal-company-name>",
+      "salesOrderServerUrl": "<sales-order-service-url>",
+      "sqlServer": "<internal-sql-server>",
+      "database": "<internal-database>"
+    }
+  }
+}

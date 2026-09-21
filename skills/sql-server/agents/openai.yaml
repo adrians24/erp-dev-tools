@@ -1,0 +1,7 @@
+interface:
+  display_name: "SQL Server"
+  short_description: "Query local and internal Visma SQL Server"
+  default_prompt: "Use $sql-server to connect to the correct local or internal SQL Server database and run the needed query."
+
+policy:
+  allow_implicit_invocation: true

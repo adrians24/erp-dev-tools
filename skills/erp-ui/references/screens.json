@@ -1,0 +1,67 @@
+{
+  "sales-order": {
+    "screenId": "SO301000",
+    "title": "Sales Orders",
+    "keyHints": ["OrderType", "OrderNbr"]
+  },
+  "shipment": {
+    "screenId": "SO302000",
+    "title": "Shipments",
+    "keyHints": ["ShipmentType", "ShipmentNbr"]
+  },
+  "invoice": {
+    "screenId": "SO303000",
+    "title": "Invoices (SO)",
+    "keyHints": ["DocType", "RefNbr"]
+  },
+  "sales-order-preferences": {
+    "screenId": "SO101000",
+    "title": "Sales Order Preferences",
+    "keyHints": []
+  },
+  "customer": {
+    "screenId": "AR303000",
+    "title": "Customers",
+    "keyHints": ["AcctCD"]
+  },
+  "discount-code": {
+    "screenId": "AR209000",
+    "title": "Discount Codes",
+    "keyHints": ["DiscountID"]
+  },
+  "discount-sequence": {
+    "screenId": "AR209500",
+    "title": "Discount Sequences",
+    "keyHints": ["DiscountID", "DiscountSequenceID"]
+  },
+  "stock-item": {
+    "screenId": "IN202500",
+    "title": "Stock Items",
+    "keyHints": ["InventoryCD"]
+  },
+  "non-stock-item": {
+    "screenId": "IN202000",
+    "title": "Non-Stock Items",
+    "keyHints": ["InventoryCD"]
+  },
+  "lot-serial-class": {
+    "screenId": "IN207000",
+    "title": "Lot/Serial Classes",
+    "keyHints": ["LotSerClassID"]
+  },
+  "kit-specification": {
+    "screenId": "IN209500",
+    "title": "Kit Specification",
+    "keyHints": ["KitInventoryID", "RevisionID"]
+  },
+  "kit-assembly": {
+    "screenId": "IN307000",
+    "title": "Kit Assembly",
+    "keyHints": ["DocType", "RefNbr"]
+  },
+  "inventory-receipt": {
+    "screenId": "IN301000",
+    "title": "Inventory Receipts",
+    "keyHints": ["DocType", "RefNbr"]
+  }
+}

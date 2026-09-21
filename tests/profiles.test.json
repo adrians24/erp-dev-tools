@@ -1,0 +1,28 @@
+{
+  "version": 1,
+  "profiles": {
+    "local": {
+      "erpApiBaseUrl": "https://local.invalid/api",
+      "erpUiBaseUrl": "https://local.invalid/site",
+      "erpCompany": "Local Test Company",
+      "erpUser": "local-test-user",
+      "environmentMutexName": "Local\\ErpDevToolsPackageTest",
+      "companyId": "100001",
+      "salesOrderServerUrl": "https://salesorder.local.invalid",
+      "sqlServer": "local-sql.invalid",
+      "database": "LocalTestDatabase"
+    },
+    "internal": {
+      "tokenUrl": "https://identity.internal.invalid/token",
+      "clientId": "test-client",
+      "tenantId": "test-tenant",
+      "companyId": "200002",
+      "branchId": "300003",
+      "erpUser": "internal-test-user",
+      "erpCompany": "Internal Test Company",
+      "salesOrderServerUrl": "https://salesorder.internal.invalid",
+      "sqlServer": "internal-sql.invalid",
+      "database": "InternalTestDatabase"
+    }
+  }
+}

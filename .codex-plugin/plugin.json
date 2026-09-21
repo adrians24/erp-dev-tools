@@ -1,0 +1,22 @@
+{
+  "name": "erp-dev-tools",
+  "version": "0.1.0",
+  "description": "Shared Visma ERP browser, API, SQL query, and SQL capture workflows.",
+  "author": {
+    "name": "Local developer"
+  },
+  "skills": "./skills/",
+  "interface": {
+    "displayName": "ERP Development Tools",
+    "shortDescription": "Navigate ERP and inspect APIs and SQL.",
+    "longDescription": "Reusable Windows development workflows for Visma ERP, with portable helpers, pinned Python dependencies, and shared environment coordination.",
+    "developerName": "Local developer",
+    "category": "Productivity",
+    "capabilities": [],
+    "defaultPrompt": [
+      "Open an ERP screen for inspection.",
+      "Run an authenticated ERP API request.",
+      "Inspect SQL for an ERP workflow."
+    ]
+  }
+}
