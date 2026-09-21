@@ -115,45 +115,45 @@ def load_legacy_local_auth(profile: Dict[str, Any]) -> Dict[str, Any]:
     if not isinstance(stored_headers, dict):
         stored_headers = {}
 
-    authorization = os.getenv("VISMA_ERP_AUTHORIZATION") or stored_headers.get("Authorization")
-    signature = os.getenv("VISMA_ERP_SIGNATURE") or stored_headers.get("ipp-signature")
-    missing = []
-    if not authorization:
-        missing.append("VISMA_ERP_AUTHORIZATION")
-    if not signature:
-        missing.append("VISMA_ERP_SIGNATURE")
-    if missing:
+    environment_headers = {
+        "Authorization": os.getenv("VISMA_ERP_AUTHORIZATION"),
+        "ipp-signature": os.getenv("VISMA_ERP_SIGNATURE"),
+        "ipp-company-id": os.getenv("VISMA_ERP_COMPANY_ID"),
+        "ipp-user-id": os.getenv("VISMA_ERP_USER_ID"),
+    }
+    supplied_environment_headers = [name for name, value in environment_headers.items() if value]
+    if supplied_environment_headers and len(supplied_environment_headers) != len(environment_headers):
+        missing_environment_variables = [
+            variable
+            for header, variable in {
+                "Authorization": "VISMA_ERP_AUTHORIZATION",
+                "ipp-signature": "VISMA_ERP_SIGNATURE",
+                "ipp-company-id": "VISMA_ERP_COMPANY_ID",
+                "ipp-user-id": "VISMA_ERP_USER_ID",
+            }.items()
+            if not environment_headers[header]
+        ]
         abort(
             "config_error",
-            "Missing local ERP credentials in environment variables and Windows Credential Manager.",
+            "Local ERP environment overrides are an atomic authentication set; provide all four values or none.",
             data={
-                "missing_environment_variables": missing,
+                "missing_environment_variables": missing_environment_variables,
                 "credential_target": LOCAL_ERP_CREDENTIAL_TARGET,
             },
         )
 
-    profile_company_id = configured_value(profile, "companyId")
-    profile_user = configured_value(profile, "erpUser")
-    headers = {
-        "Authorization": str(authorization),
-        "ipp-signature": str(signature),
-    }
-    headers.update(
-        {
-            "ipp-company-id": os.getenv("VISMA_ERP_COMPANY_ID")
-            or profile_company_id
-            or str(stored_headers.get("ipp-company-id") or ""),
-            "ipp-user-id": os.getenv("VISMA_ERP_USER_ID")
-            or profile_user
-            or str(stored_headers.get("ipp-user-id") or ""),
-            "Content-Type": "application/json",
-        }
-    )
+    source_headers = environment_headers if supplied_environment_headers else stored_headers
+    required_headers = ["Authorization", "ipp-signature", "ipp-company-id", "ipp-user-id"]
+    missing_headers = [name for name in required_headers if not source_headers.get(name)]
+    if missing_headers:
+        abort(
+            "config_error",
+            f"Windows credential '{LOCAL_ERP_CREDENTIAL_TARGET}' is missing required local ERP authentication headers.",
+            data={"missing_credential_headers": missing_headers, "credential_target": LOCAL_ERP_CREDENTIAL_TARGET},
+        )
 
-    if not headers["ipp-company-id"]:
-        require_machine_value("local", profile, "companyId")
-    if not headers["ipp-user-id"]:
-        require_machine_value("local", profile, "erpUser")
+    headers = {name: str(source_headers[name]) for name in required_headers}
+    headers["Content-Type"] = "application/json"
 
     return {
         "base_url": os.getenv("VISMA_ERP_BASE_URL")
@@ -282,10 +282,15 @@ def resolve_legacy_erp_profile(args: Any) -> LegacyErpProfile:
     if environment == "localhost":
         auth = load_legacy_local_auth(machine_profile)
         headers = dict(auth.get("headers", {}))
-        if args.company_id:
-            headers["ipp-company-id"] = args.company_id
-        if args.user_id:
-            headers["ipp-user-id"] = args.user_id
+        for option_name, requested, header_name in [
+            ("--company-id", args.company_id, "ipp-company-id"),
+            ("--user-id", args.user_id, "ipp-user-id"),
+        ]:
+            if requested and str(requested) != str(headers.get(header_name) or ""):
+                abort(
+                    "config_error",
+                    f"{option_name} cannot replace one field in the atomic local ERP credential. Refresh '{LOCAL_ERP_CREDENTIAL_TARGET}' for the intended identity or supply all four VISMA_ERP authentication overrides.",
+                )
         headers.setdefault("Content-Type", "application/json")
         base_url = args.base_url or auth.get("base_url") or require_machine_value("local", machine_profile, "erpApiBaseUrl")
         return LegacyErpProfile(

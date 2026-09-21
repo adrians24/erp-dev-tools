@@ -22,6 +22,7 @@ For local Sales Order requests, first run `scripts/Ensure-SalesOrderService.ps1`
 - `--database` does not switch the backing database. Internal resolution checks the returned company database; local configuration must already serve the intended database. Sales Order `--environment internal` also leaves the request host unchanged: set the intended `--server-url`. See [configuration](references/configuration.md) when choosing non-default targets or resolving authentication.
 - Execute writes and actions within the user's authorized target and scope. Use `--body-file` for complex payloads. After an ambiguous write failure, inspect resulting state before retrying to avoid duplicates; stop if the outcome cannot be resolved safely.
 - Keep secrets in the configured credential store or process environment, never in chat or literal command arguments.
+- Treat the local legacy ERP authorization, signature, company ID, and API user ID as one credential set. Never combine its signed headers with company or user values from another profile.
 
 ## Commands and results
 

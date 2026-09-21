@@ -18,6 +18,10 @@ os.environ["ERP_DEV_TOOLS_CONFIG"] = str(ROOT / "tests/profiles.test.json")
 CAPTURE = ROOT / "skills/sql-server-capture/scripts"
 sys.path.insert(0, str(CAPTURE))
 import sql_capture
+API_SCRIPTS = ROOT / "skills/run-api-requests/scripts"
+sys.path.insert(0, str(API_SCRIPTS))
+from api_request_runner import profiles as api_profiles
+from api_request_runner.common import CliAbort
 
 
 def powershell(*args, cwd=None, env=None):
@@ -73,6 +77,41 @@ class PackageTests(unittest.TestCase):
             self.assertEqual(module.resolve_api_script_path(None), ROOT / "skills/run-api-requests/scripts/run_api_requests.py")
             args = module.build_parser().parse_args(["around", "--database", "ExplicitDatabase", "--", "whoami"])
             self.assertEqual(args.database, "ExplicitDatabase")
+
+    def test_local_erp_credential_headers_remain_atomic(self):
+        stored = {
+            "base_url": "https://erp.local.invalid/api",
+            "headers": {
+                "Authorization": "Bearer stored-token",
+                "ipp-signature": "stored-signature",
+                "ipp-company-id": "stored-company",
+                "ipp-user-id": "stored-user",
+            },
+        }
+        environment_names = [
+            "VISMA_ERP_AUTHORIZATION",
+            "VISMA_ERP_SIGNATURE",
+            "VISMA_ERP_COMPANY_ID",
+            "VISMA_ERP_USER_ID",
+        ]
+        with patch.dict(os.environ, {}, clear=False), patch.object(api_profiles, "read_json_credential", return_value=stored):
+            for name in environment_names:
+                os.environ.pop(name, None)
+            resolved = api_profiles.load_legacy_local_auth({"companyId": "profile-company", "erpUser": "profile-user"})
+        self.assertEqual(resolved["headers"]["ipp-company-id"], "stored-company")
+        self.assertEqual(resolved["headers"]["ipp-user-id"], "stored-user")
+
+    def test_local_erp_partial_environment_authentication_is_rejected(self):
+        with patch.dict(os.environ, {"VISMA_ERP_AUTHORIZATION": "Bearer override"}, clear=False), patch.object(api_profiles, "read_json_credential", return_value={}):
+            for name in ["VISMA_ERP_SIGNATURE", "VISMA_ERP_COMPANY_ID", "VISMA_ERP_USER_ID"]:
+                os.environ.pop(name, None)
+            with self.assertRaises(CliAbort) as raised:
+                api_profiles.load_legacy_local_auth({})
+        self.assertEqual(raised.exception.payload["error"]["type"], "config_error")
+        self.assertEqual(
+            set(raised.exception.payload["data"]["missing_environment_variables"]),
+            {"VISMA_ERP_SIGNATURE", "VISMA_ERP_COMPANY_ID", "VISMA_ERP_USER_ID"},
+        )
 
     def test_screen_url_encoding_and_reserved_keys(self):
         script = ROOT / "skills/erp-ui/scripts/Open-ErpScreen.ps1"

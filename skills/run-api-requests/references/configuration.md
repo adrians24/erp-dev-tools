@@ -4,10 +4,10 @@
 
 Non-secret settings come from the `local` machine profile. The protected credential lives in Windows Credential Manager target `Codex.VismaErp.local`. Process environment variables override profile or stored values:
 
-- Credentials: `VISMA_ERP_AUTHORIZATION`, `VISMA_ERP_SIGNATURE`.
-- Optional settings: `VISMA_ERP_BASE_URL`, `VISMA_ERP_COMPANY_ID`, `VISMA_ERP_USER_ID`, `VISMA_ERP_VERIFY_TLS`.
+- Credential overrides: `VISMA_ERP_AUTHORIZATION`, `VISMA_ERP_SIGNATURE`, `VISMA_ERP_COMPANY_ID`, and `VISMA_ERP_USER_ID`. These four values form one authentication set; provide all four or none.
+- Optional settings: `VISMA_ERP_BASE_URL`, `VISMA_ERP_VERIFY_TLS`.
 
-`erpApiBaseUrl`, `companyId`, `erpUser`, and `database` must be configured. Local `--database` records an expected name; it does not reconfigure the ERP instance or verify its database. Targeting another local database requires an instance/company profile that actually serves it.
+`erpApiBaseUrl`, `companyId`, `erpUser`, and `database` must be configured. The local legacy API takes its authorization, signature, company ID, and API user ID together from `Codex.VismaErp.local`; machine-profile `companyId` and `erpUser` remain context for the UI and Sales Order workflows and are not injected into that signed header set. Local `--company-id` and `--user-id` may only restate the stored values. Local `--database` records an expected name; it does not reconfigure the ERP instance or verify its database. Targeting another local database or API identity requires a matching complete credential.
 
 ## Internal ERP
 
