@@ -21,7 +21,7 @@ if ($CheckConfiguration) {
     $configuration.path = Get-ErpDevToolsConfigPath
     $configuration.present = Test-Path -LiteralPath $configuration.path -PathType Leaf
     $required = @{
-        local = @('erpApiBaseUrl', 'erpUiBaseUrl', 'erpCompany', 'erpUser', 'environmentMutexName', 'companyId', 'salesOrderServerUrl', 'sqlServer', 'database')
+        local = @('erpApiBaseUrl', 'erpUiBaseUrl', 'erpCompany', 'erpUser', 'environmentMutexName', 'companyId', 'salesOrderServerUrl', 'salesOrderRepository', 'sqlServer', 'database')
         internal = @('tokenUrl', 'clientId', 'tenantId', 'companyId', 'erpUser', 'erpCompany', 'salesOrderServerUrl', 'sqlServer', 'database')
     }
     $valid = $configuration.present

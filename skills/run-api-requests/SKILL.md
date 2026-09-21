@@ -13,6 +13,8 @@ $runApi = Join-Path $apiSkillRoot 'scripts\Invoke-RunApi.ps1'
 
 The launcher uses the plugin's pinned `requirements.lock`. Keep the complete plugin layout so sibling helpers and dependencies remain available.
 
+For local Sales Order requests, first run `scripts/Ensure-SalesOrderService.ps1`. It checks `/health`, starts the configured local checkout when the service is down, waits for readiness, and coordinates startup with the shared environment mutex. Do not stop at a connection-refused result for a required local service: start it through its owning project workflow, wait for health, and retry the original read-only check. Never start remote environments or replace an occupied unhealthy port.
+
 ## Target and scope
 
 - Use `erp` for `/v1/...`; use `salesorder` for `/api/v3/...` and its `/health` endpoint.

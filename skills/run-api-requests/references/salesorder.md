@@ -32,6 +32,14 @@ Check the local host:
 Invoke-RunApi salesorder health
 ```
 
+Ensure a stopped local host is started and healthy before a request:
+
+```powershell
+& (Join-Path $apiSkillRoot 'scripts\Ensure-SalesOrderService.ps1')
+```
+
+The helper uses `salesOrderRepository` from the local machine profile, starts the documented Sales Order API project in a hidden process, writes logs below `%LOCALAPPDATA%\Visma\Codex\erp-dev-tools\logs`, and leaves the healthy service running. Startup is serialized by the configured shared environment mutex. It rechecks health after acquiring the lock, refuses to replace an occupied unhealthy port, and never starts a non-loopback host.
+
 Call a different host explicitly:
 
 ```powershell

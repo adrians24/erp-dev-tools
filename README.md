@@ -65,6 +65,8 @@ Invoke scripts using their actual package path, for example from the package roo
 
 The API and capture launchers resolve `requirements.lock` relative to their own files, so the full package can be relocated. Install the complete plugin, not individual skill folders. The existing SQL query regression can be run explicitly against a configured local database with `skills/sql-server/scripts/Test-SqlServerQuery.ps1`; it performs SELECTs and intentional errors only and is excluded from the offline suite.
 
+Configure `salesOrderRepository` in the local profile so agents can start a stopped local Sales Order Service. The API skill checks health, starts the service under the shared environment mutex, waits for readiness, and retries instead of treating an initial connection refusal as the final result.
+
 ## Concurrent worktrees
 
 ERP sessions are named from the active worktree. Keep deployment, restart and shared writes inside `Invoke-ErpEnvironmentExclusive.ps1` for the whole operation. Configure `environmentMutexName` to the same value used by cooperating project runners. Do not nest the wrapper around a runner that already holds that mutex. This lock coordinates cooperating processes on the same Windows session; it is not a cross-computer database lock. Independent targets can intentionally share one conservative lock name.

@@ -9,6 +9,7 @@
       "environmentMutexName": "<shared-environment-mutex-name>",
       "companyId": "<local-company-id>",
       "salesOrderServerUrl": "https://localhost:5001",
+      "salesOrderRepository": "<local-sales-order-service-checkout>",
       "sqlServer": "(local)\\<sql-instance>",
       "database": "<local-database>"
     },

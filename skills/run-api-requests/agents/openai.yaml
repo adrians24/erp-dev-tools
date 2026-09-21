@@ -1,4 +1,4 @@
 interface:
   display_name: "Run API Requests"
   short_description: "Call local and internal Visma APIs"
-  default_prompt: "Use $run-api-requests to execute localhost or internal API requests."
+  default_prompt: "Use $run-api-requests to execute localhost or internal API requests, starting required local services when they are down."

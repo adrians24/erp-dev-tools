@@ -156,6 +156,37 @@ function Get-ErpLoginUrl {
     return "$root/Frames/Login.aspx?ReturnUrl=$([System.Uri]::EscapeDataString($target.PathAndQuery))"
 }
 
+function ConvertFrom-ErpPlaywrightJson {
+    param(
+        [Parameter(Mandatory)][AllowEmptyCollection()][string[]] $Output,
+        [Parameter(Mandatory)][string] $Context
+    )
+
+    $text = $Output -join [Environment]::NewLine
+    try {
+        return $text | ConvertFrom-Json -ErrorAction Stop
+    }
+    catch {
+        # playwright-cli can emit a one-time informational banner before its JSON.
+    }
+
+    $lines = @($text -split '\r?\n')
+    for ($index = 0; $index -lt $lines.Count; $index++) {
+        $trimmed = $lines[$index].TrimStart()
+        if (!$trimmed.StartsWith('{') -and !$trimmed.StartsWith('[')) { continue }
+
+        $candidate = $lines[$index..($lines.Count - 1)] -join [Environment]::NewLine
+        try {
+            return $candidate | ConvertFrom-Json -ErrorAction Stop
+        }
+        catch {
+            continue
+        }
+    }
+
+    throw "$Context returned invalid JSON: $text"
+}
+
 function Test-ErpUiSession {
     param([Parameter(Mandatory)][string] $Session)
 
@@ -165,7 +196,7 @@ function Test-ErpUiSession {
         throw "Could not enumerate Playwright sessions: $($output -join [Environment]::NewLine)"
     }
 
-    $data = ($output -join [Environment]::NewLine) | ConvertFrom-Json
+    $data = ConvertFrom-ErpPlaywrightJson -Output $output -Context 'playwright-cli list'
     return @($data.browsers | Where-Object { $_.name -eq $Session -and $_.status -eq 'open' }).Count -gt 0
 }
 
@@ -183,12 +214,7 @@ function Invoke-ErpPlaywright {
         throw "playwright-cli failed for session '$Session': $text"
     }
 
-    try {
-        $response = $text | ConvertFrom-Json
-    }
-    catch {
-        throw "playwright-cli returned invalid JSON for session '$Session': $text"
-    }
+    $response = ConvertFrom-ErpPlaywrightJson -Output $output -Context "playwright-cli for session '$Session'"
 
     if ($response.PSObject.Properties.Name -contains 'error' -and $null -ne $response.error) {
         $message = if ($response.error -is [string]) { $response.error } else { $response.error | ConvertTo-Json -Compress -Depth 8 }

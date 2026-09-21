@@ -9,6 +9,7 @@
       "environmentMutexName": "Local\\ErpDevToolsPackageTest",
       "companyId": "100001",
       "salesOrderServerUrl": "https://salesorder.local.invalid",
+      "salesOrderRepository": "X:\\fake\\sales-order-service",
       "sqlServer": "local-sql.invalid",
       "database": "LocalTestDatabase"
     },

@@ -1,6 +1,6 @@
 {
   "name": "erp-dev-tools",
-  "version": "0.1.0",
+  "version": "0.1.0+codex.20260921095215",
   "description": "Shared Visma ERP browser, API, SQL query, and SQL capture workflows.",
   "author": {
     "name": "Local developer"

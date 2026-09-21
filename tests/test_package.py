@@ -5,6 +5,7 @@ import os
 from pathlib import Path
 import re
 import shutil
+import socket
 import subprocess
 import sys
 import tempfile
@@ -92,6 +93,62 @@ class PackageTests(unittest.TestCase):
         payload = json.loads(result.stdout)
         self.assertEqual(payload["company"], "Local Test Company")
         self.assertEqual(urlparse(payload["url"]).netloc, "local.invalid")
+
+    def test_playwright_json_parser_ignores_first_run_banner(self):
+        common = ROOT / "skills/erp-ui/scripts/ErpUi.Common.ps1"
+        command = (
+            ". '" + str(common).replace("'", "''") + "'; "
+            "$value = ConvertFrom-ErpPlaywrightJson -Context test -Output @('playwright-cli first-run notice', '{\"ok\":true,\"result\":{\"screen\":\"SO302000\"}}'); "
+            "$value | ConvertTo-Json -Compress -Depth 5"
+        )
+        result = powershell("-Command", command)
+        self.assertEqual(result.returncode, 0, result.stderr)
+        self.assertEqual(json.loads(result.stdout)["result"]["screen"], "SO302000")
+
+    def test_sales_order_helper_starts_stopped_local_service(self):
+        ensure = ROOT / "skills/run-api-requests/scripts/Ensure-SalesOrderService.ps1"
+        with socket.socket() as probe:
+            probe.bind(("127.0.0.1", 0))
+            port = probe.getsockname()[1]
+
+        with tempfile.TemporaryDirectory(prefix="erp-service-start-") as folder:
+            root = Path(folder)
+            project = root / "sales-order-service/src/services/sales-order/sales-order.api/sales-order.api.csproj"
+            project.parent.mkdir(parents=True)
+            project.write_text("<Project />", encoding="utf-8")
+            server = root / "server.py"
+            server.write_text(
+                "from http.server import BaseHTTPRequestHandler, HTTPServer\n"
+                "import os\n"
+                "class Handler(BaseHTTPRequestHandler):\n"
+                "    def do_GET(self):\n"
+                "        self.send_response(200 if self.path == '/health' else 404); self.end_headers()\n"
+                "    def log_message(self, *_): pass\n"
+                "HTTPServer(('127.0.0.1', int(os.environ['FAKE_SERVER_PORT'])), Handler).handle_request()\n",
+                encoding="utf-8",
+            )
+            fake_bin = root / "bin"
+            fake_bin.mkdir()
+            (fake_bin / "dotnet.cmd").write_text(
+                '@echo off\r\n"%FAKE_PYTHON%" "%FAKE_SERVER_SCRIPT%"\r\n', encoding="utf-8"
+            )
+            env = os.environ | {
+                "PATH": str(fake_bin) + os.pathsep + os.environ["PATH"],
+                "FAKE_PYTHON": sys.executable,
+                "FAKE_SERVER_SCRIPT": str(server),
+                "FAKE_SERVER_PORT": str(port),
+            }
+            result = powershell(
+                "-File", ensure,
+                "-ServerUrl", f"http://127.0.0.1:{port}",
+                "-SalesOrderRepository", root / "sales-order-service",
+                "-TimeoutSeconds", "15",
+                env=env,
+            )
+            self.assertEqual(result.returncode, 0, result.stderr)
+            payload = json.loads(result.stdout[result.stdout.index("{"):])
+            self.assertEqual(payload["status"], "started")
+            self.assertIsInstance(payload["processId"], int)
 
     def test_initializer_creates_template_without_overwriting(self):
         script = ROOT / "scripts/Initialize-ErpDevTools.ps1"
