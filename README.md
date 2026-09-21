@@ -1,8 +1,29 @@
 # ERP Development Tools
 
-Local source package for four shared Codex skills: ERP UI, authenticated API requests, SQL queries, and SQL capture. The plugin version is recorded in [.codex-plugin/plugin.json](.codex-plugin/plugin.json).
+Codex plugin for four shared Visma ERP development workflows:
 
-This repository is prepared locally. No remote, marketplace entry, or installed plugin has been created. Existing personal skills remain active until an explicit installation and migration. The current publisher metadata is local development metadata; select the team publisher before distribution.
+- ERP UI navigation, inspection, and screenshots
+- authenticated legacy ERP and Sales Order API requests
+- SQL Server queries using protected credentials
+- filtered SQL capture and persisted-data inspection
+
+The plugin version is recorded in [.codex-plugin/plugin.json](.codex-plugin/plugin.json). Machine-specific endpoints and identifiers stay in a local profile, while passwords, tokens, and signatures remain in Windows Credential Manager or process environment variables.
+
+## Install
+
+Clone the repository into a stable development path:
+
+```powershell
+git clone https://github.com/adrians24/erp-dev-tools.git .\erp-dev-tools
+```
+
+Register that checkout as the `erp-dev-tools` source in a personal or team Codex marketplace, then install it with:
+
+```powershell
+codex plugin add erp-dev-tools@<marketplace-name>
+```
+
+Start a new Codex task after installation so the four plugin skills are discovered.
 
 ## Check a developer machine
 
@@ -50,7 +71,9 @@ ERP sessions are named from the active worktree. Keep deployment, restart and sh
 
 ## Distribution and updates
 
-Publish this source to the selected private team repository only after review. A team marketplace entry and installation are the next separate step; none is registered by this package. Once installed and verified, archive duplicate personal skills. Keep local services, repositories, credentials and sessions outside the plugin cache.
+The source repository is `https://github.com/adrians24/erp-dev-tools`. Marketplace configuration, machine profiles, credentials, local services, and browser sessions remain outside the repository and installed plugin cache.
+
+After installing and verifying the plugin, remove duplicate standalone copies of these skills. Start a new Codex task after every reinstall so Codex discovers the updated plugin version.
 
 Consuming projects should record the tested plugin version and source commit. Keep one compatible shared installation per developer; conflicting project requirements need an explicit version decision. Do not silently upgrade shared tools in the middle of a task.
 
